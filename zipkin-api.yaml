@@ -1,0 +1,49 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Zipkin API
+  description: |
+    Zipkin's Query api is rooted at `api/v1`, on a host that by default listens on port 9411. It primarily serves zipkin-web, although it includes a POST endpoint that can receive spans.
+
+host: localhost:9411
+basePath: /api/v1
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /services:
+    get:
+      description: Returns a list of all service names associated with annotations.
+      responses:
+        "200":
+          description: Succes
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ServiceName"
+        default:
+          description: Error
+  '/spans/{serviceName}':
+    parameters:
+      - name: serviceName
+        in: path
+        required: true
+        description: Ex zipkin-web (required) - service that logged an annotation in the span.
+        type: string
+    get:
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              type: string
+definitions: 
+  ServiceName:
+    type: string
+  Span:
+    type: string    
