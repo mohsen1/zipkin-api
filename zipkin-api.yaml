@@ -3,7 +3,9 @@ info:
   version: "1.0.0"
   title: Zipkin API
   description: |
-    Zipkin's Query api is rooted at `api/v1`, on a host that by default listens on port 9411. It primarily serves zipkin-web, although it includes a POST endpoint that can receive spans.
+    Zipkin's Query api is rooted at `api/v1`, on a host that by default listens 
+    on port 9411. It primarily serves zipkin-web, although it includes a POST 
+    endpoint that can receive spans.
 host: localhost:9411
 basePath: /api/v1
 schemes:
@@ -34,7 +36,8 @@ paths:
         in: query
         required: true
         description: |
-          Ex zipkin-web (required) - service that logged an annotation in the span.
+          Ex zipkin-web (required) - service that logged an annotation in the
+          span.
         type: string
       responses:
         200:
@@ -50,9 +53,15 @@ paths:
       description: |
           Invoking this request retrieves traces matching the below filters.
 
-          Results should be filtered against endTs, subject to limit and lookback. For example, if endTs is 10:20 today, limit is 10, and lookback is 7 days, traces returned should be those nearest to 10:20 today, not 10:20 a week ago.
+          Results should be filtered against endTs, subject to limit and 
+          lookback. For example, if endTs is 10:20 today, limit is 10, and 
+          lookback is 7 days, traces returned should be those nearest to 10:20 
+          today, not 10:20 a week ago.
 
-          Time units of endTs and lookback are milliseconds as opposed to microseconds, the grain of Span.timestamp. Milliseconds is a more familiar and supported granularity for query, index and windowing functions
+          Time units of endTs and lookback are milliseconds as opposed to 
+          microseconds, the grain of Span.timestamp. Milliseconds is a more 
+          familiar and supported granularity for query, index and windowing 
+          functions
       parameters:
         - name: serviceName
           in: query
@@ -63,27 +72,36 @@ paths:
           in: query
           type: string
           description: |
-             Ex. `http.uri=/foo and retried` - If key/value (has an `=`), constrains against Span.binaryAnnotations of time string. If just a word, constrains against Span.annotations. Any values are AND against eachother. This means a span in the trace must match all of these.
+             Ex. `http.uri=/foo and retried` - If key/value (has an `=`), 
+             constrains against Span.binaryAnnotations of time string. If just 
+             a word, constrains against Span.annotations. Any values are AND 
+             against eachother. This means a span in the trace must match all of
+             these.
         - name: minDuration
           in: query
           type: integer
           description: |
-             Ex. 100000 (for 100ms). Only return traces whose Span.duration is greater than or equal to minDuration microseconds.
+             Ex. 100000 (for 100ms). Only return traces whose `Span.duration` is 
+             greater than or equal to minDuration microseconds.
         - name: maxDuration
           in: query
           type: integer
           description: |
-            Only return traces whose Span.duration is less than or equal to maxDuration microseconds. Only valid with minDuration.
+            Only return traces whose Span.duration is less than or equal to 
+            `maxDuration` microseconds. Only valid with minDuration.
         - name: endTs
           in: query
           type: string
           description: |
-            Only return traces where all Span.timestamp are at or before this time in epoch milliseconds. Defaults to current time.
+            Only return traces where all Span.timestamp are at or before this 
+            time in epoch milliseconds. Defaults to current time.
         - name: lookback
           type: string
           in: query
           description: |
-            Only return traces where all  Span.timestamp are at or after (endTs - * lookback) in milliseconds. Defaults to endTs, limited to a system parameter QUERY_LOOKBACK
+            Only return traces where all  Span.timestamp are at or after (endTs 
+            - * lookback) in milliseconds. Defaults to endTs, limited to a 
+            system parameter QUERY_LOOKBACK
 
         - name: limit
           in: query
