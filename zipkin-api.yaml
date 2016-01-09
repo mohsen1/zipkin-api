@@ -19,15 +19,17 @@ paths:
     get:
       description: Returns a list of all service names associated with annotations.
       responses:
-        "200":
+        200:
           description: Succes
           schema:
             type: array
             items:
               $ref: "#/definitions/ServiceName"
-        default:
-          description: Error
-  '/spans/{serviceName}':
+        400:
+          description: Bad Request Error
+          schema:
+            $ref: "#/definitions/Error"
+  /spans/{serviceName}:
     parameters:
       - name: serviceName
         in: path
@@ -36,14 +38,82 @@ paths:
         type: string
     get:
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: array
             items:
               type: string
+        400:
+          description: Bad Request Error
+          schema:
+            $ref: "#/definitions/Error"
+  /traces/{serviceName}:
+    parameters:
+      - name: serviceName
+        in: path
+        required: true
+        description: service name
+        type: string
+    get:
+      description: |
+          Invoking this request retrieves traces matching the below filters.
+          
+          Results should be filtered against endTs, subject to limit and lookback. For example, if endTs is 10:20 today, limit is 10, and lookback is 7 days, traces returned should be those nearest to 10:20 today, not 10:20 a week ago.
+          
+          Time units of endTs and lookback are milliseconds as opposed to microseconds, the grain of Span.timestamp. Milliseconds is a more familiar and supported granularity for query, index and windowing functions
+      parameters:
+        - name: annotationQuery
+          in: query
+          type: string
+          description: |
+             Ex. `http.uri=/foo and retried` - If key/value (has an `=`), constrains against Span.binaryAnnotations of time string. If just a word, constrains against Span.annotations. Any values are AND against eachother. This means a span in the trace must match all of these.
+        - name: minDuration
+          in: query
+          type: integer
+          description: |
+             Ex. 100000 (for 100ms). Only return traces whose Span.duration is greater than or equal to minDuration microseconds.
+        - name: maxDuration
+          in: query
+          type: integer
+          description: |
+            Only return traces whose Span.duration is less than or equal to maxDuration microseconds. Only valid with minDuration.
+        - name: endTs
+          in: query
+          type: string
+          description: |
+            Only return traces where all Span.timestamp are at or before this time in epoch milliseconds. Defaults to current time.
+        - name: lookback
+          type: string
+          in: query
+          description: | 
+            Only return traces where all  Span.timestamp are at or after (endTs - * lookback) in milliseconds. Defaults to endTs, limited to a system parameter QUERY_LOOKBACK
+            
+        - name: limit
+          in: query
+          default: 10
+          type: integer
+          description: |
+            Maximum number of traces to return. Defaults to 10
+      responses:
+        200:
+          description: OK
+    
 definitions: 
   ServiceName:
+    description: Name of a service
     type: string
-  Span:
-    type: string    
+  Error:
+    type: object
+    description: The error message
+    properties:
+      status:
+        type: number
+      error:
+        type: string
+      exception: 
+        type: string
+      message:
+        type: string
+      path:
+        type: string
