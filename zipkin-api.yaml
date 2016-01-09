@@ -49,9 +49,9 @@ paths:
     get:
       description: |
           Invoking this request retrieves traces matching the below filters.
-          
+
           Results should be filtered against endTs, subject to limit and lookback. For example, if endTs is 10:20 today, limit is 10, and lookback is 7 days, traces returned should be those nearest to 10:20 today, not 10:20 a week ago.
-          
+
           Time units of endTs and lookback are milliseconds as opposed to microseconds, the grain of Span.timestamp. Milliseconds is a more familiar and supported granularity for query, index and windowing functions
       parameters:
         - name: serviceName
@@ -82,9 +82,9 @@ paths:
         - name: lookback
           type: string
           in: query
-          description: | 
+          description: |
             Only return traces where all  Span.timestamp are at or after (endTs - * lookback) in milliseconds. Defaults to endTs, limited to a system parameter QUERY_LOOKBACK
-            
+
         - name: limit
           in: query
           default: 10
@@ -94,3 +94,79 @@ paths:
       responses:
         200:
           description: OK
+          schema:
+            $ref: "#/definitions/ListOfTracesLists"
+
+definitions:
+  Annotation:
+    type: object
+    properties:
+      endpoint:
+        type: object
+        properties:
+          serviceName:
+            type: string
+          ipv4:
+            type: string
+          port:
+            type: integer
+      timestamp:
+        type: integer
+      value:
+        type: string
+        
+  BinaryAnnotation:
+    type: object
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+      endpoint:
+        $ref: '#/definitions/Endpoint'
+  
+  Endpoint:
+    type: object
+    properties:
+      serviceName:
+        type: string
+      ipv4:
+        type: string
+      port:
+        type: integer
+        
+  TraceList:
+    type: array
+    items: 
+      $ref: "#/definitions/Trace"
+      
+  Trace:
+    type: object
+    properties:
+      traceId:
+        type: string
+      name:
+        type: string
+      id:
+        type: string
+      timestamp:
+        type: integer
+      duration:
+        type: integer
+      debug:
+        type: boolean
+      annotations:
+        title: ListOfAnnotations
+        type: array
+        items:
+          $ref: '#/definitions/Annotation'
+      binaryAnnotations:
+        title: ListOfBinaryAnnotations
+        type: array
+        items:
+          $ref: '#/definitions/BinaryAnnotation'
+          
+  ListOfTracesLists:
+    type: array
+    items:
+      $ref: '#/definitions/TraceList'
